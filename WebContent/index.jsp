@@ -1,5 +1,4 @@
-<%@ page language="java" contentType="text/html; charset=UTF-8"
-    pageEncoding="UTF-8"%>
+<%@ page language="java" contentType="text/html; charset=UTF-8"  pageEncoding="UTF-8"%>
 <!DOCTYPE html >
 <html lang="zh-CN">
 <head>
@@ -7,37 +6,85 @@
 <title>云盘</title>
 
 <link rel="stylesheet" href="css/bootstrap.min.css">
-<script type="text/javascript" src="js/jquery-2.1.4.min.js"></script>
+<script type="text/javascript" src="js/jquery-1.11.3.min.js"></script>
 <script type="text/javascript" src="js/bootstrap.js"></script>
 
 <script type="text/javascript">
 	$(function(){
 			$("#selection").click(function(){
+				var flag = false ;
+				var count = 0 ;
+				if($(this).is(":checked")){
+					flag = true ;
+				}
 				$(".selection").each(function(index, item){
-					if($(this).attr("checked") == "checked"){
-						$(this).removeattr("checked");
+					if(flag == false ){
+						//取消选择
+						$(this).prop("checked", false);
 					}else{
-						$(this).attr("checked", "checked");
+						//选择
+						$(this).prop("checked", true);
+						count ++ ;
 					}
 				});
-			});
-			
-			$(".enter").bind("click", function(){
-				var type = $(this).attr("type");
-				if( type == "folder"){//是文件夹
-					$("#navInfo").text($("#navInfo").text() + " > " + $(this).text());
-					reloadFiles();
+				
+				if( count >= 1){
+					$("#fileName").text("已选择" + count );
+					$("#size").text("");
+					$("#date").text("");
 				}else{
-					
+					$("#fileName").text("文件名");
+					$("#size").text("大小");
+					$("#date").text("修改日期");
 				}
 			});
 			
-			$("#createFolder").click(function(){
-				   $("#identifier").modal();
-					//html = "<hr><td><input class='selection' type='checkbox'>&nbsp;&nbsp;&nbsp;新建文件夹</td><td>--</td><td>2015-12-21</td></tr>"
-					//$("#tableHead").append(html);
+			$(document).on("click",  ".enter",function(){
+				var type = $(this).attr("type");
+				if( type == "folder"){//是文件夹
+					$("#fileNav").append("<li class='active'>" + $(this).text() + "</li>");
+					reloadFiles();
+				}else{
+					window.open( "preview.jsp");
+				}
 			});
 			
+			$(document).on("click", "button[name=cancel_create_btn]",  function(){
+				$(this).parent().parent().remove();
+			});
+			
+			$(document).on("click", "button[name=submit_create_btn]",  function(){
+				//$(this).parent().parent().remove();
+				alert("创建")
+			});
+			
+			//鼠标经过
+			$(document).on("mouseover", ".colum", function(){
+					//$(this).children('td').children('a').append("<button class='btn　btn-primary 　btn-xs'>操作</button>")
+			});
+			
+			//鼠标经过
+			$(document).on("mouseout", ".colum", function(){
+				//$(this).children().eq(3).
+			});
+						
+			//新建文件夹
+			$("#createFolder").click(function(){
+					html =          "<tr  class=\"colum\">";
+					html +=			  			"<td class='nameInfo'>";
+					html +=	  					"<input class=\"selection\" type=\"checkbox\">&nbsp;&nbsp;&nbsp;&nbsp;";
+					html +=	  					"<image src=\"images/folder.ico\" style=\"width:20px;height:20px;\">";
+					html +=  					"&nbsp;<input type='text' value='新建文件夹' style='border:1px solid green;color:blue;'>";
+					html +=                     "&nbsp;&nbsp;&nbsp;&nbsp;<button class='btn btn-success btn-xs' name='submit_create_btn'>确定</button>";
+					html +=                     "&nbsp;&nbsp;<button class='btn btn-danger btn-xs'  name='cancel_create_btn'>取消</button>";
+					html +=  			        "</td>";
+					html +=	  			        "<td> - </td>";
+					html +=	  			        "<td>2015-10-2  12:00:11</td>";
+					html +=	  		"</tr>"
+					$("#tableHead").append(html);
+			});
+			
+			//重新刷新文件列表
 			function reloadFiles(){
 				$(".colum").html("");
 			}
@@ -56,61 +103,56 @@
 					</form>
 			</div>
 			
-		   <!-- 面板 -->
-			<div class="panel panel-primary" style="height:550px;">
+		     <!-- 面板 -->
+			<div class="panel panel-primary" style="height:550px;width:100%;overflow-x:hidden;">
 			  	<div class="panel-footer">
 			  		<button class="btn btn-primary">上传文件</button>
 					<button class="btn"  id="createFolder">新建文件夹</button>
 			  	</div>
-			  	<div class="panel-body"  id="navInfo">全部文件</div>
 			  	
-			  	<table class="table table-hover" style="width:98%;margin-left:16px;"  id="table">
+			  	<!-- 文件导航栏 -->
+			  	<ol class="breadcrumb"  style="background-color:#FFFFFF;" id="fileNav">
+				  <li><a href="#">全部文件</a></li>
+				</ol>
+			  	
+			  	<!--文件列表  -->
+			  	<table class="table table-hover table-condensed" style="width:98%;margin-left:16px;margin-top:-20px;"  id="table">
 			  		<thead  id="tableHead"  >
-			  			<tr>
-			  				<td><input id="selection" type="checkbox">&nbsp;&nbsp;&nbsp;文件名</td>
-			  				<td>大小</td><td>修改日期</td>
+			  			<tr  class="info table-bordered">
+			  				<td  style="width:50%;"><input id="selection" type="checkbox">&nbsp;&nbsp;&nbsp;&nbsp;<span id="fileName">文件名</span></td>
+			  				<td  style="width:20%;"><span id="size">大小</span></td>
+			  				<td  style="width:30%;"><span id="date">修改日期</span></td>
 			  			</tr>
 			  		</thead>
 			  		<!--文件内容  -->
 			  		<tr  class="colum">
-			  			<td>
+			  			<td  class='nameInfo'>
 			  					<input class="selection" type="checkbox">&nbsp;&nbsp;&nbsp;
 			  					<image src="images/folder.ico" style="width:20px;height:20px;">
-			  					<a href="javascript:void(0)"  class="enter"  type="folder">新建文件夹</a>
+			  					<a href="javascript:void(0)"  class="enter"  type="folder">大数据云计算</a>
+			  								  					
+			  					<!--操作按钮  -->
+			  					<!-- <div class="btn-group"  style="margin-right:30px;">
+								  <button type="button" class="btn btn-default btn-xs dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+								    操作 <span class="caret"></span>
+								  </button>
+								  <ul class="dropdown-menu">
+								    <li><a href="#">删除</a></li>
+								    <li><a href="#">下载</a></li>
+								    <li><a href="#">重命名</a></li>
+								  </ul>
+								</div> -->
 			  			</td>
 			  			<td> - </td>
 			  			<td>2015-10-2  12:00:11</td>
 			  		</tr>
-			  		<tr  class="colum">
-			  			<td>
-			  					<input class="selection" type="checkbox">&nbsp;&nbsp;&nbsp;
-			  					<image src="images/video.ico" style="width:20px;height:20px;">
-			  					<a href="javascript:void(0)" class="enter"  type="pdf">java编程思想.pdf</a>
-			  			</td>
-			  			<td>20m</td>
-			  			<td>2014-10-22  10:22:33</td>
-			  		</tr>
+			  		
+			  		
 			  	</table>
 			</div>
 	</div>
 	
-	<!--创建文件夹对话框  -->
-	<div class="modal fade"  id="identifier" tabindex="-1" role="dialog"   aria-labelledby="myModalLabel" aria-hidden="true">
-	   <div class="modal-dialog">
-	      <div class="modal-content">
-	         <div class="modal-header">
-	            <button type="button" class="close"  data-dismiss="modal" aria-hidden="true">&times;</button>
-	               <h5>请输入文件夹名称</h5>
-	         </div>
-	         <div class="modal-body">
-	         			<input type="text">
-	         </div>
-	         <div class="modal-footer">
-	            <button type="button" class="btn btn-default"  data-dismiss="modal">取消
-	            </button>
-	            <button type="button" class="btn btn-primary">创建</button>
-	         </div>
-	      </div><!-- /.modal-content -->
-	</div>
-</body>
+	<!--对话框  -->
+	
+	</body>
 </html>

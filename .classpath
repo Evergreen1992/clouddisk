@@ -13,5 +13,8 @@
 	</classpathentry>
 	<classpathentry kind="con" path="org.eclipse.jst.j2ee.internal.web.container"/>
 	<classpathentry kind="con" path="org.eclipse.jst.j2ee.internal.module.container"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/struts2.3_jars"/>
+	<classpathentry kind="lib" path="/home/xiongxiao/桌面/文件夹/hadoop_jars/hadoop-common-2.6.1.jar"/>
+	<classpathentry kind="lib" path="/home/xiongxiao/桌面/hadoop/hadoop-2.6.1/share/hadoop/hdfs/hadoop-hdfs-2.6.1.jar"/>
 	<classpathentry kind="output" path="build/classes"/>
 </classpath>
