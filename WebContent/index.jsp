@@ -24,6 +24,7 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 
 <script type="text/javascript">
 	$(function(){
+			listFile();//显示文件列表	
 		
 			$("#selection").click(function(){
 				var flag = false ;
@@ -118,6 +119,20 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 	        }).bind('fileuploaddone', function (e, data) {  
 
 	        });  
+			
+			function listFile(){
+				$.ajax({  
+					type:'post',      
+					url:'<%=basePath %>file!listUserFile.action',  
+					data:'',  
+					cache:false,  
+					dataType:'json',  
+					success:function(data){  
+						var array = eval( data );
+						alert(array.length)
+					}  
+				});  
+			}
 	             
 	});
 </script>
@@ -164,7 +179,27 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 			  					<input class="selection" type="checkbox">&nbsp;&nbsp;&nbsp;
 			  					<image src="images/folder.ico" style="width:20px;height:20px;">
 			  					<a href="javascript:void(0)"  class="enter"  type="folder">大数据云计算</a>
-			  								  					
+			  				
+			  			</td>
+			  			<td> - </td>
+			  			<td>2015-10-2  12:00:11</td>
+			  		</tr>
+			  		
+			  		<tr  class="colum">
+			  			<td  class='nameInfo'>
+			  					<input class="selection" type="checkbox">&nbsp;&nbsp;&nbsp;
+			  					<image src="images/music.ico" style="width:20px;height:20px;">
+			  					<a href="javascript:void(0)"  class="enter"  type="file">hadoop.pdf</a>
+			  				
+			  			</td>
+			  			<td> - </td>
+			  			<td>2015-10-2  12:00:11</td>
+			  		</tr>
+			  	</table>
+			</div>
+	</div>
+	
+					  					
 			  					<!--操作按钮  -->
 			  					<!-- <div class="btn-group"  style="margin-right:30px;">
 								  <button type="button" class="btn btn-default btn-xs dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -176,15 +211,6 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 								    <li><a href="#">重命名</a></li>
 								  </ul>
 								</div> -->
-			  			</td>
-			  			<td> - </td>
-			  			<td>2015-10-2  12:00:11</td>
-			  		</tr>
-			  		
-			  		
-			  	</table>
-			</div>
-	</div>
 	
 	<!--文件上传对话框  -->			
 	<div class="modal fade" id="uploadWindow" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true"> 

@@ -13,7 +13,7 @@ public class FileDAO extends BaseConnection{
 	 * @param parentId uid
 	 * @return
 	 */
-	public List<File> getFileByParentId(Integer parentId, int uid){
+	public List<File> getFileByParentId(String parentId, String uid){
 		List<File> files = new ArrayList<File>();
 		
 		try{
@@ -25,20 +25,20 @@ public class FileDAO extends BaseConnection{
 			Connection conn = this.getConn();
 			ResultSet rs = null ;
 			PreparedStatement pstmt = conn.prepareStatement(sql);
-			pstmt.setInt(1, uid);
+			pstmt.setString(1, uid);
 			if( parentId != null )
-				pstmt.setInt(2, parentId);
+				pstmt.setString(2, parentId);
 			
 			rs = pstmt.executeQuery();
 			
-			while( rs != null ){
+			while( rs.next() ){
 				File file = new File();
-				file.setId(rs.getInt("id"));
+				file.setId(rs.getString("id"));
 				file.setFileName(rs.getString("filename"));
 				file.setType(rs.getInt("type"));
-				file.setUpdateTime(rs.getDate("updatetime"));
-				file.setUId(rs.getInt("uid"));
-				file.setParentId(rs.getInt("parentid"));
+				file.setUpdateTime(new java.util.Date(rs.getDate("updatetime").getTime()));
+				file.setuId(rs.getString("uid"));
+				file.setParentId(rs.getString("parentid"));
 				files.add(file);
 			}
 			close(rs);
@@ -51,4 +51,9 @@ public class FileDAO extends BaseConnection{
 		return files ;
 	}
 
+	public static void main(String[] args){
+		for(File i : new FileDAO().getFileByParentId(null, "1")){
+			System.out.println(i.getFileName() + " , " + i.getParentId() + " , " + i.getUpdateTime());
+		}
+	}
 }
