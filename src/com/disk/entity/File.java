@@ -9,12 +9,25 @@ import java.util.Date;
  */
 public class File {
 	private int id ;
-	private int fileName ;//文件名称
+	private String fileName ;//文件名称
 	private int type ;//文件类型
 	private Date updateTime ;//更新时间
-	private int userId ;//所属用户
+	private int uId ;//所属用户
+	private int parentId ; //所属文件夹id
 	
-	public int getFileName() {
+	public int getuId() {
+		return uId;
+	}
+	public void setuId(int uId) {
+		this.uId = uId;
+	}
+	public int getParentId() {
+		return parentId;
+	}
+	public void setParentId(int parentId) {
+		this.parentId = parentId;
+	}
+	public String getFileName() {
 		return fileName;
 	}
 	public int getId() {
@@ -26,10 +39,10 @@ public class File {
 	public Date getUpdateTime() {
 		return updateTime;
 	}
-	public int getUserId() {
-		return userId;
+	public int getUId() {
+		return uId;
 	}
-	public void setFileName(int fileName) {
+	public void setFileName(String fileName) {
 		this.fileName = fileName;
 	}
 	public void setId(int id) {
@@ -41,7 +54,7 @@ public class File {
 	public void setUpdateTime(Date updateTime) {
 		this.updateTime = updateTime;
 	}
-	public void setUserId(int userId) {
-		this.userId = userId;
+	public void setUId(int userId) {
+		this.uId = userId;
 	}
 }

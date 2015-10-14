@@ -1,16 +1,30 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"  pageEncoding="UTF-8"%>
+<%
+String path = request.getContextPath();
+String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.getServerPort()+path+"/";
+%>
+
 <!DOCTYPE html >
 <html lang="zh-CN">
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <title>云盘</title>
 
+
 <link rel="stylesheet" href="css/bootstrap.min.css">
 <script type="text/javascript" src="js/jquery-1.11.3.min.js"></script>
 <script type="text/javascript" src="js/bootstrap.js"></script>
+<!--文件上传引入  -->
+<link rel="stylesheet" href="css/jquery.fileupload.css">
+<link rel="stylesheet" href="css/jquery.fileupload-ui.css">
+<script type="text/javascript" src="js/jquery.iframe-transport.js"></script>
+<script type="text/javascript" src="js/jquery.ui.widget.js"></script>
+<script type="text/javascript" src="js/jquery.fileupload.js"></script>
+
 
 <script type="text/javascript">
 	$(function(){
+		
 			$("#selection").click(function(){
 				var flag = false ;
 				var count = 0 ;
@@ -88,6 +102,23 @@
 			function reloadFiles(){
 				$(".colum").html("");
 			}
+			
+			$("#uploadBtn").click(function(){
+				$("#uploadWindow").modal();
+			});
+			
+			//文件上传
+			$("#fileUploadStart").fileupload({  
+	            url: '<%=basePath %>file!uploadFile.action',  
+	            sequentialUploads: true  
+	        }).bind('fileuploadprogress', function (e, data) {  
+	        	 	var progress = parseInt(data.loaded / data.total * 100, 10);  
+	             $("#process").css('width',progress + '%');  
+	             $("#process").html(progress + '%');  
+	        }).bind('fileuploaddone', function (e, data) {  
+
+	        });  
+	             
 	});
 </script>
 </head>
@@ -95,6 +126,9 @@
 	<div class="container-fluid">
 			<!--导航  -->
 			<div class="bg-primary" style="width:100%;height:60px;argin-top:-2px;">
+					<form class="navbar-form navbar-left" role="search"  >
+						<span style='font-size:20px;'>网络云盘</span>
+					</form>
 					<form class="navbar-form navbar-right" role="search"  style="margin-right:5px;">
 						  <div class="form-group">
 						    	<input type="text" class="form-control" placeholder="Search">
@@ -106,7 +140,7 @@
 		     <!-- 面板 -->
 			<div class="panel panel-primary" style="height:550px;width:100%;overflow-x:hidden;">
 			  	<div class="panel-footer">
-			  		<button class="btn btn-primary">上传文件</button>
+			  		<button class="btn btn-primary"	id="uploadBtn">上传文件</button>
 					<button class="btn"  id="createFolder">新建文件夹</button>
 			  	</div>
 			  	
@@ -152,7 +186,30 @@
 			</div>
 	</div>
 	
-	<!--对话框  -->
-	
+	<!--文件上传对话框  -->			
+	<div class="modal fade" id="uploadWindow" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true"> 
+		<div class="modal-dialog"> 
+			<div class="modal-content"> 
+				<div class="modal-header"> 
+					<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button> 
+					<h4 class="modal-title" id="myModalLabel">文件上传</h4> 
+				</div> 
+				<div class="modal-body">
+						<!-- 文件上传表单 -->
+						<form action="">
+								<input type="file" class="btn btn-default" name="file"  id="fileUploadStart">
+								<br>
+								<div id="process" class="progress-bar progress-bar-success" style="width:0%;"></div>
+						</form>
+				 </div> 
+				 
+				<div class="modal-footer"> 
+					<button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+				</div>
+			</div>
+		</div> 
+	</div>
+	<!--文件上传对话框结束  -->    
+	    
 	</body>
 </html>
