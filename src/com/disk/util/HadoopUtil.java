@@ -1,4 +1,4 @@
-package com.disk.util;
+/*package com.disk.util;
 
 import java.io.BufferedInputStream;
 import java.io.FileInputStream;
@@ -11,23 +11,23 @@ import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.IOUtils;
 import org.apache.hadoop.util.Progressable;
 
-/**
+*//**
  * hadoop　　hdfs文件上传工具类
  * @author xiongxiao
  *
- */
+ *//*
 public class HadoopUtil {
 	
 	public static void upload(){
 		try {
-			String dst = "hdfs://localhost:8020/";
-			String localSrc = "/home/xiongxiao/hahahaha";
+			String dst = "hdfs://127.0.0.1:9000/files/xx3.txt";
+			String localSrc = "/home/xiongxiao/xx.txt";
 			InputStream in = new BufferedInputStream(new FileInputStream(localSrc));
 			Configuration conf = new Configuration();
 			FileSystem fs = FileSystem.get(URI.create(dst), conf);
 			OutputStream out = fs.create(new Path(dst), new Progressable(){
 				public void progress(){
-					System.out.print(".");
+					System.out.print("上传中~");
 				}
 			});
 			
@@ -41,3 +41,4 @@ public class HadoopUtil {
 		upload();
 	}
 }
+*/
