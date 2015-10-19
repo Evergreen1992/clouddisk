@@ -3,13 +3,16 @@
 String path = request.getContextPath();
 String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.getServerPort()+path+"/";
 %>
-
 <!DOCTYPE html >
 <html lang="zh-CN">
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-<title>云盘</title>
 
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Cache-control" content="no-cache">
+<meta http-equiv="Cache" content="no-cache">
+
+<title>云盘</title>
 
 <link rel="stylesheet" href="css/bootstrap.min.css">
 <script type="text/javascript" src="js/jquery-1.11.3.min.js"></script>
@@ -45,6 +48,8 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 				
 				if( count >= 1){
 					$("#fileName").text("已选择" + count );
+					//<div id="operationInfo"><span id="fileName">文件名</span></div>
+					//$("#operationInfo").html("<span>已选择" + count + "</span><button class='btn-primary'>操作</button>" );
 					$("#size").text("");
 					$("#date").text("");
 				}else{
@@ -58,7 +63,7 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 				var type = $(this).attr("type");
 				if( type == "folder"){//是文件夹
 					$("#fileNav").append("<li class='active'>" + $(this).text() + "</li>");
-					reloadFiles();
+					reloadFiles($(this).attr("fileId"));
 				}else{
 					window.open( "preview.jsp");
 				}
@@ -69,18 +74,32 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 			});
 			
 			$(document).on("click", "button[name=submit_create_btn]",  function(){
-				//$(this).parent().parent().remove();
-				alert("创建")
+				var data = "type=2&size=&ext=&parentId=&fileName=" + $(this).prev().val() ;
+				$.ajax({  
+					type:'post',      
+					url:'<%=basePath %>file!createFolder.action',  
+					data:data,  
+					cache:false,  
+					dataType:'text',  
+					success:function(data){  
+						if( data == "true"){
+							$(this).prev().remove();
+						}else{
+							alert("创建失败!");
+						}
+					}  
+				});  
 			});
 			
 			//鼠标经过
 			$(document).on("mouseover", ".colum", function(){
-					//$(this).children('td').children('a').append("<button class='btn　btn-primary 　btn-xs'>操作</button>")
+				//$(this).append($("#operationBtns"));
+				//$(this).children("a").show();
 			});
 			
 			//鼠标经过
 			$(document).on("mouseout", ".colum", function(){
-				//$(this).children().eq(3).
+				//$("#operationBtns").remove();
 			});
 						
 			//新建文件夹
@@ -100,8 +119,9 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 			});
 			
 			//重新刷新文件列表
-			function reloadFiles(){
+			function reloadFiles(pId){
 				$(".colum").html("");
+				listFile(pId);
 			}
 			
 			$("#uploadBtn").click(function(){
@@ -120,20 +140,74 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 
 	        });  
 			
-			function listFile(){
+			//查看所有文件
+			$(document).on("click", ".allFiles", function(){
+				$(".colum").html("");
+				listFile();
+			} );
+			
+			function appendBtn(){
+				var html = "";
+				html += "<div class=\"btn-group\"  style=\"margin-right:30px;display:none;\"  id=\"operationBtns\">";
+				html += "<button type=\"button\" class=\"btn btn-default btn-xs dropdown-toggle\" data-toggle=\"dropdown\" aria-haspopup=\"true\" aria-expanded=\"false\">";
+				html +=    "操作 <span class=\"caret\"></span>";
+				html +=  "</button>";
+				html += " <ul class=\"dropdown-menu\">";
+				html +=    "<li><a href=\"#\">删除</a></li>";
+				html +=    " <li><a href=\"#\">下载</a></li>";
+				html +=    " <li><a href=\"#\">重命名</a></li>";
+				html +=  "</ul>";
+				html += "</div>";
+				return html;
+			}
+			
+			//列出文件列表
+			function listFile(parentId){
+				$("#table").append("<center  id='loading'>正在加载，请稍后...</center>");
+				var url = "<%=basePath %>file!listUserFile.action";
+				if( parentId != null){
+					url += "?parentId=" + parentId;
+				}else{//查询所有文件
+					
+				}
 				$.ajax({  
 					type:'post',      
-					url:'<%=basePath %>file!listUserFile.action',  
+					url:url,  
 					data:'',  
 					cache:false,  
-					dataType:'json',  
+					dataType:'text',  
 					success:function(data){  
-						var array = eval( data );
-						alert(array.length)
+						$("#loading").remove();
+						var array = eval(data);
+						$(array).each(function(index, item){
+							var html = "";
+							html +=       "<tr  class=\"colum\">";
+					  		html +=	       "<td  class='nameInfo'>";
+					  		html +=			"<input class=\"selection\" type=\"checkbox\">&nbsp;&nbsp;&nbsp;";
+					  		if( item.type == 1){//普通文件
+					  			html +=		    "<image src=\"images/music.ico\" style=\"width:20px;height:20px;\">";
+					  			html +=		    "<a href=\"javascript:void(0)\"  class=\"enter\"  type=\"file\"  fileId='" + item.id + "'>" + item.fileName + "</a>";
+					  			//html += appendBtn();
+					  			html +=         "</td>";
+						  		html +=         "<td>10M </td>";
+					  		}else if( item.type == 2){//文件夹
+					  			html +=		    "<image src=\"images/folder.ico\" style=\"width:20px;height:20px;\">";
+					  			html +=		    "<a href=\"javascript:void(0)\"  class=\"enter\"  type=\"folder\"  fileId='" + item.id + "'>" + item.fileName + "</a>";
+					  			//html += appendBtn();
+					  			html +=         "</td>";
+						  		html +=         "<td>&nbsp;&nbsp;&nbsp;-&nbsp;&nbsp;&nbsp;    </td>";
+					  		}
+					  		
+					  		html +=         "<td>" + item.updateTime + "</td>";
+					  		html +=        "</tr>";
+					  		
+					  		
+					  		$("#table").append(html);
+						});
 					}  
 				});  
 			}
-	             
+	        
 	});
 </script>
 </head>
@@ -156,61 +230,33 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 			<div class="panel panel-primary" style="height:550px;width:100%;overflow-x:hidden;">
 			  	<div class="panel-footer">
 			  		<button class="btn btn-primary"	id="uploadBtn">上传文件</button>
-					<button class="btn"  id="createFolder">新建文件夹</button>
+					<button class="btn btn-success"  id="createFolder">新建文件夹</button>
+					<!-- <span class="alert alert-success" role="alert">创建文件夹成功!</span> -->
 			  	</div>
 			  	
 			  	<!-- 文件导航栏 -->
 			  	<ol class="breadcrumb"  style="background-color:#FFFFFF;" id="fileNav">
-				  <li><a href="#">全部文件</a></li>
+				  <li><a href="#"  class="allFiles"  first='1'>全部文件</a></li>
 				</ol>
 			  	
 			  	<!--文件列表  -->
 			  	<table class="table table-hover table-condensed" style="width:98%;margin-left:16px;margin-top:-20px;"  id="table">
 			  		<thead  id="tableHead"  >
 			  			<tr  class="info table-bordered">
-			  				<td  style="width:50%;"><input id="selection" type="checkbox">&nbsp;&nbsp;&nbsp;&nbsp;<span id="fileName">文件名</span></td>
+			  				<td  style="width:50%;">
+			  					<input id="selection" type="checkbox">&nbsp;&nbsp;&nbsp;&nbsp;
+			  					<span id="fileName">文件名</span>
+			  				</td>
 			  				<td  style="width:20%;"><span id="size">大小</span></td>
 			  				<td  style="width:30%;"><span id="date">修改日期</span></td>
 			  			</tr>
 			  		</thead>
-			  		<!--文件内容  -->
-			  		<tr  class="colum">
-			  			<td  class='nameInfo'>
-			  					<input class="selection" type="checkbox">&nbsp;&nbsp;&nbsp;
-			  					<image src="images/folder.ico" style="width:20px;height:20px;">
-			  					<a href="javascript:void(0)"  class="enter"  type="folder">大数据云计算</a>
-			  				
-			  			</td>
-			  			<td> - </td>
-			  			<td>2015-10-2  12:00:11</td>
-			  		</tr>
-			  		
-			  		<tr  class="colum">
-			  			<td  class='nameInfo'>
-			  					<input class="selection" type="checkbox">&nbsp;&nbsp;&nbsp;
-			  					<image src="images/music.ico" style="width:20px;height:20px;">
-			  					<a href="javascript:void(0)"  class="enter"  type="file">hadoop.pdf</a>
-			  				
-			  			</td>
-			  			<td> - </td>
-			  			<td>2015-10-2  12:00:11</td>
-			  		</tr>
+			  	
 			  	</table>
 			</div>
 	</div>
 	
-					  					
-			  					<!--操作按钮  -->
-			  					<!-- <div class="btn-group"  style="margin-right:30px;">
-								  <button type="button" class="btn btn-default btn-xs dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-								    操作 <span class="caret"></span>
-								  </button>
-								  <ul class="dropdown-menu">
-								    <li><a href="#">删除</a></li>
-								    <li><a href="#">下载</a></li>
-								    <li><a href="#">重命名</a></li>
-								  </ul>
-								</div> -->
+	
 	
 	<!--文件上传对话框  -->			
 	<div class="modal fade" id="uploadWindow" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true"> 

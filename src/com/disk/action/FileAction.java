@@ -1,12 +1,14 @@
 package com.disk.action;
 
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.struts2.ServletActionContext;
 import com.disk.dao.FileDAO;
 import com.disk.entity.File;
 import com.disk.entity.User;
+import com.disk.util.IDUtil;
 import com.opensymphony.xwork2.ActionContext;
 import com.opensymphony.xwork2.ActionSupport;
 import com.opensymphony.xwork2.ModelDriven;
@@ -22,7 +24,6 @@ public class FileAction extends ActionSupport implements ModelDriven<File>{
 	private File file; //上传的文件
 	private String fileFileName; //文件名称
     private String fileContentType; //文件类型
-	private String parentId ;//父节点id
 	private File entity = new File();
 	/**
 	 * 文件上传
@@ -34,6 +35,32 @@ public class FileAction extends ActionSupport implements ModelDriven<File>{
 	}
 	
 	/**
+	 * 
+	 * @return
+	 */
+	public String createFolder(){
+		User u = (User)ActionContext.getContext().getSession().get("loginUser");
+		FileDAO dao = new FileDAO();
+		entity.setId(IDUtil.generateId());
+		entity.setuId(u.getId());
+		entity.setUpdateTime(new java.util.Date());
+		entity.setExt("");
+		entity.setSize("");
+		entity.setType(2);
+		if( entity.getParentId() == null && entity.getParentId().equals("")){
+			entity.setParentId(null);
+		}
+		
+		try {
+			boolean flag = dao.create(entity) ;
+			this.getWriter().print( flag );
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return null ;
+	}
+	
+	/**
 	 * 查询文件列表
 	 * @return
 	 */
@@ -41,11 +68,10 @@ public class FileAction extends ActionSupport implements ModelDriven<File>{
 		User loginUser = (User)ActionContext.getContext().getSession().get("loginUser");
 		FileDAO dao = new FileDAO();
 		List<File> files = new ArrayList<File>();
-		files = dao.getFileByParentId(parentId, loginUser.getId());
+		files = dao.getFileByParentId(this.entity.getParentId(), loginUser.getId());
 		JSONArray jsonArr = JSONArray.fromObject(files);
-		System.out.println(jsonArr.toString());
 		try {
-			ServletActionContext.getResponse().getWriter().print(jsonArr.toString());
+			this.getWriter().print(jsonArr.toString());
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -91,12 +117,8 @@ public class FileAction extends ActionSupport implements ModelDriven<File>{
 	public File getModel() {
 		return this.entity;
 	}
-	public String getParentId() {
-		return parentId;
-	}
 
-	public void setParentId(String parentId) {
-		this.parentId = parentId;
+	public PrintWriter getWriter() throws IOException{
+		return ServletActionContext.getResponse().getWriter();
 	}
-
 }
