@@ -44,6 +44,10 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 					}
 				});
 				
+				function deleteFiles(){
+					alert("fdsf")
+				}
+				
 				//删除文件
 				$("#deleteFiles").click(function(){
 					var ids = "";
@@ -89,6 +93,8 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 			});
 			
 			$(document).on("click", ".navHref", function(){
+				$(this).parent().nextAll().remove();
+				$(".colum").html("");
 				listFile($(this).attr("fileId"));
 			});
 			
@@ -278,11 +284,12 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 						操作 <span class="caret"></span>
 						</button>
 						<ul class="dropdown-menu">
-						<li><a href="javascript:void(0)"  id="deleteFiles">删除</a></li>
+						<li><a href="javascript:void(0)">删除</a></li>
 						<li><a href="#">下载</a></li>
 						<li><a href="#">重命名</a></li>
 						</ul>
 					</div>
+					
 			  	</div>
 			  	
 			  	<!-- 文件导航栏 -->
@@ -306,8 +313,6 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 			  	</table>
 			</div>
 	</div>
-	
-	
 	
 	<!--文件上传对话框  -->			
 	<div class="modal fade" id="uploadWindow" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true"> 

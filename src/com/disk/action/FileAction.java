@@ -29,7 +29,7 @@ public class FileAction extends ActionSupport implements ModelDriven<com.disk.en
 	 * 
 	 * @return
 	 */
-	public String delte(){
+	public String delete(){
 		try {
 			FileDAO dao = new FileDAO();
 			if( entity.getId() != null ){
@@ -66,7 +66,7 @@ public class FileAction extends ActionSupport implements ModelDriven<com.disk.en
 		entity.setExt("");
 		entity.setSize("");
 		entity.setType(2);
-		if( entity.getParentId() == null && entity.getParentId().equals("")){
+		if( entity.getParentId() == null || entity.getParentId().equals("")){
 			entity.setParentId(null);
 		}
 		
