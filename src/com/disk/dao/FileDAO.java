@@ -3,13 +3,56 @@ package com.disk.dao;
 import java.util.ArrayList;
 import java.util.List;
 import com.disk.entity.File;
-import com.disk.util.IDUtil;
-
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 
 public class FileDAO extends BaseConnection{
+	/**
+	 * 删除文件
+	 * @param entity
+	 * @return
+	 */
+	public boolean delete(String id){
+		boolean flag = false ;
+		Connection conn = null;
+		PreparedStatement pstmt = null ;
+		try{
+			conn = this.getConn();
+			pstmt = conn.prepareStatement("delte from t_file where id = ?");
+			pstmt.setString(1, id);
+			if( pstmt.executeUpdate() == 1)
+				flag = true ;
+		}catch(Exception e){
+			e.printStackTrace();
+		}
+		return flag ;
+	}
+	
+	/**
+	 * 修改文件名
+	 * @param file
+	 * @return
+	 */
+	public boolean updateName(File file){
+		boolean flag = true ;
+		Connection conn = null;
+		PreparedStatement pstmt = null ;
+		try{
+			conn = this.getConn();
+			pstmt = conn.prepareStatement("update t_file set filename = ? where id = ?");
+			pstmt.setString(1, file.getFileName());
+			pstmt.setString(2, file.getId());
+			if( pstmt.executeUpdate() == 1)
+				flag = true ;
+			else
+				flag = false ;
+		}catch(Exception e){
+			e.printStackTrace();
+		}
+		
+		return flag ;
+	}
 	
 	/**
 	 * 创建文件
@@ -18,7 +61,7 @@ public class FileDAO extends BaseConnection{
 	 */
 	public boolean create(File file){
 		boolean flag = true ;
-		/*Connection conn = null;
+		Connection conn = null;
 		PreparedStatement pstmt = null ;
 		String sql = "insert into t_file(id, filename, type, uid, updatetime, parentid, size, ext) values(?,?,?,?,now(),?,?,?)";
 		
@@ -40,7 +83,7 @@ public class FileDAO extends BaseConnection{
 		}catch(Exception e){
 			e.printStackTrace();
 			flag = false ;
-		}*/
+		}
 		
 		return flag ;
 	}
@@ -90,25 +133,6 @@ public class FileDAO extends BaseConnection{
 	}
 
 	public static void main(String[] args){
-		/*for(File i : new FileDAO().getFileByParentId(null, "1")){
-			System.out.println(i.getFileName() + " , " + i.getParentId() + " , " + i.getUpdateTime());
-		}*/
-		/*File file = new File();
-		file.setId("222222222222");
-		file.setFileName("hello.pdf");
-		file.setType(1);
-		file.setExt(".pdf");
-		file.setParentId(null);
-		file.setuId("1");
-		file.setSize("10M");
-		new FileDAO().create(file);*/
-		File entity = new File();
-		entity.setId(IDUtil.generateId());
-		entity.setuId("1");
-		entity.setUpdateTime(new java.util.Date());
-		entity.setExt("");
-		entity.setSize("");
-		entity.setType(2);
-		System.out.println(new FileDAO().create(entity));
+		
 	}
 }

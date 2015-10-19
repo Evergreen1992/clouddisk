@@ -6,7 +6,6 @@ import java.util.ArrayList;
 import java.util.List;
 import org.apache.struts2.ServletActionContext;
 import com.disk.dao.FileDAO;
-import com.disk.entity.File;
 import com.disk.entity.User;
 import com.disk.util.IDUtil;
 import com.opensymphony.xwork2.ActionContext;
@@ -18,13 +17,33 @@ import net.sf.json.JSONArray;
  * 文件相关操作action
  * @author xiongxiao
  */
-public class FileAction extends ActionSupport implements ModelDriven<File>{
+public class FileAction extends ActionSupport implements ModelDriven<com.disk.entity.File>{
 	private static final long serialVersionUID = 1L;
 	
-	private File file; //上传的文件
+	private java.io.File file; //上传的文件
 	private String fileFileName; //文件名称
     private String fileContentType; //文件类型
-	private File entity = new File();
+	private com.disk.entity.File entity = new com.disk.entity.File();
+	
+	/**
+	 * 
+	 * @return
+	 */
+	public String delte(){
+		try {
+			FileDAO dao = new FileDAO();
+			if( entity.getId() != null ){
+				for(String id : entity.getId().split(",")){
+					dao.delete(id);
+				}
+			}
+			this.getWriter().print("true");
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return null ;
+	}
+	
 	/**
 	 * 文件上传
 	 * @return
@@ -53,7 +72,7 @@ public class FileAction extends ActionSupport implements ModelDriven<File>{
 		
 		try {
 			boolean flag = dao.create(entity) ;
-			this.getWriter().print( flag );
+			this.getWriter().print( flag == false ? false : entity.getId());
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -67,7 +86,7 @@ public class FileAction extends ActionSupport implements ModelDriven<File>{
 	public String listUserFile(){
 		User loginUser = (User)ActionContext.getContext().getSession().get("loginUser");
 		FileDAO dao = new FileDAO();
-		List<File> files = new ArrayList<File>();
+		List<com.disk.entity.File> files = new ArrayList<com.disk.entity.File>();
 		files = dao.getFileByParentId(this.entity.getParentId(), loginUser.getId());
 		JSONArray jsonArr = JSONArray.fromObject(files);
 		try {
@@ -83,11 +102,11 @@ public class FileAction extends ActionSupport implements ModelDriven<File>{
 		return null ;
 	}
 	
-	public File getFile() {
-		return file;
+	public java.io.File getFile() {
+		return this.file;
 	}
 
-	public void setFile(File file) {
+	public void setFile(java.io.File file) {
 		this.file = file;
 	}
 
@@ -106,15 +125,15 @@ public class FileAction extends ActionSupport implements ModelDriven<File>{
 	public void setFileContentType(String fileContentType) {
 		this.fileContentType = fileContentType;
 	}
-	public File getEntity() {
+	public com.disk.entity.File getEntity() {
 		return entity;
 	}
 
-	public void setEntity(File entity) {
+	public void setEntity(com.disk.entity.File entity) {
 		this.entity = entity;
 	}
 
-	public File getModel() {
+	public com.disk.entity.File getModel() {
 		return this.entity;
 	}
 
