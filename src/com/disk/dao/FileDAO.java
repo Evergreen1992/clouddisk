@@ -8,6 +8,29 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 
 public class FileDAO extends BaseConnection{
+	
+	/**
+	 * 
+	 * @param entity
+	 * @return
+	 */
+	public boolean updateParentId(File entity){
+		boolean flag = false ;
+		Connection conn = null;
+		PreparedStatement pstmt = null ;
+		try{
+			conn = this.getConn();
+			pstmt = conn.prepareStatement("update t_file set parentId = ?  where id = ?");
+			pstmt.setString(1, entity.getParentId());
+			pstmt.setString(2, entity.getId());
+			if( pstmt.executeUpdate() == 1)
+				flag = true ;
+		}catch(Exception e){
+			e.printStackTrace();
+		}
+		return flag ;
+	}
+	
 	/**
 	 * 删除文件
 	 * @param entity

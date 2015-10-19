@@ -176,18 +176,48 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 				$("#uploadWindow").modal();
 			});
 			
+		/* 	//文件上传
+			$("#startUpload").click(function(){
+				
+			});
+			 */
+			 
 			//文件上传
 			$("#fileUploadStart").fileupload({  
-	            url: '<%=basePath %>file!uploadFile.action',  
-	            sequentialUploads: true  
+	            url: '<%=basePath %>file!uploadFile.action?parentId=' + parentId,  
+	            sequentialUploads: true ,
 	        }).bind('fileuploadprogress', function (e, data) {  
 	        	 	var progress = parseInt(data.loaded / data.total * 100, 10);  
 	             $("#process").css('width',progress + '%');  
 	             $("#process").html(progress + '%');  
 	        }).bind('fileuploaddone', function (e, data) {  
-
-	        });  
-			
+					if( data.result != "false"){
+						updateParentId(data.result, parentId);
+					}
+	        }); 
+			 
+			 function updateParentId(id, pId){
+				 var url = "<%=basePath %>file!updateParentId.action?id=" + id ;
+				 if(pId != null )
+					 url += ("&parentId=" + pId);
+				 $.ajax({  
+						type:'post',      
+						url:url,  
+						data:'',  
+						cache:false,  
+						dataType:'text',  
+						success:function(data){  
+							if( data == "false"){
+								alert("文件信息更新失败!");
+							}else{
+								$("#uploadWindow").modal("hide");
+								$(".colum").html("");
+								listFile(pId);
+							}
+						}  
+					});  
+			 }
+			 
 			//查看所有文件
 			$(document).on("click", ".allFiles", function(){
 				$(".colum").html("");
@@ -325,13 +355,15 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 				<div class="modal-body">
 						<!-- 文件上传表单 -->
 						<form action="">
-								<input type="file" class="btn btn-default" name="file"  id="fileUploadStart">
+								<input type="file" class="btn btn-default" name="file"  id="fileUploadStart" >
+								
 								<br>
 								<div id="process" class="progress-bar progress-bar-success" style="width:0%;"></div>
 						</form>
 				 </div> 
 				 
 				<div class="modal-footer"> 
+					<!-- <button type="button" class="btn btn-primary"　　id="startUpload">上传</button> -->
 					<button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
 				</div>
 			</div>

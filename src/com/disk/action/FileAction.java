@@ -25,6 +25,21 @@ public class FileAction extends ActionSupport implements ModelDriven<com.disk.en
     private String fileContentType; //文件类型
 	private com.disk.entity.File entity = new com.disk.entity.File();
 	
+	//修改父节点id
+	public String updateParentId(){
+		
+		boolean flag = false ;
+		FileDAO dao = new FileDAO();
+		flag = dao.updateParentId(entity);
+		
+		try {
+			this.getWriter().print(flag);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return null ;
+	}
+	
 	/**
 	 * 
 	 * @return
@@ -50,6 +65,27 @@ public class FileAction extends ActionSupport implements ModelDriven<com.disk.en
 	 */
 	public String uploadFile(){
 		System.out.println("文件:" + this.fileFileName + " , " + this.fileContentType + " , " + this.file);
+		System.out.println(this.entity.getParentId());
+		
+		User u = (User)ActionContext.getContext().getSession().get("loginUser");
+		FileDAO dao = new FileDAO();
+		entity.setFileName(this.fileFileName);
+		entity.setId(IDUtil.generateId());
+		entity.setuId(u.getId());
+		entity.setUpdateTime(new java.util.Date());
+		entity.setExt("");
+		entity.setSize("100M");
+		entity.setType(1);
+		if( entity.getParentId() == null || entity.getParentId().equals("")){
+			entity.setParentId(null);
+		}
+		
+		try {
+			boolean flag = dao.create(entity) ;
+			this.getWriter().print( flag == false ? false : entity.getId());
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 		return null ;
 	}
 	
