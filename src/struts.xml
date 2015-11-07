@@ -11,7 +11,7 @@
 	<constant name="struts.serve.static.browserCache" value="flase" />
 	<constant name="struts.multipart.maxSize" value="8589934592" />
 	<constant name="struts.convention.result.path" value="/" />
-	<constant name="struts.convention.package.locators" value="action" />
-	<constant name="struts.convention.package.locators.basePackage" value="com.disk.action" />
+<!-- 	<constant name="struts.convention.package.locators" value=" ,action" />
+ -->	<constant name="struts.convention.package.locators.basePackage" value="com.disk.action" />
 	
 </struts>
