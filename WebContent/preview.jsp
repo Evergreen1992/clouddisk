@@ -86,27 +86,30 @@ if( fileName.contains("."))
 </head>
 <body style="height:100%;">
 
-<div class="container-fluid"  style="height:100%;">
+<div class="container-fluid"  style="height:94%;">
+		<div class="bg-primary" style="width:100%;height:60px;argin-top:-2px;">
+				<div class="bg-primary" style="width:100%;height:60px;argin-top:-2px;">
+							<form class="navbar-form navbar-left"  >
+								<span style='font-size:30px;'>网盘</span>
+							</form>
+				</div>
+		</div>
 		<div class="panel panel-primary" style="height:98%;width:100%;overflow-x:hidden;">
-			<div class="bg-primary" style="width:100%;height:60px;argin-top:-2px;">
-					<div class="bg-primary" style="width:100%;height:60px;argin-top:-2px;">
-								<form class="navbar-form navbar-left"  >
-									<span style='font-size:20px;'>网络云盘</span>
-								</form>
-					</div>
-			</div>
+			
 			<div class="panel-body">		
-				<center>
+				<center >
 						<h4>文件浏览 - <%=fileName %></h4>
-						<a href="<%=basePath %>file!fileDownload.action?id=<%=id %>&fileName=<%=fileName %>">下载</a>
 						
+					   	<a class="btn btn-default" href="<%=basePath %>file!fileDownload.action?id=<%=id %>&fileName=<%=fileName %>">下载</a>
+					
 						<div  id="image"  style="display:none;">
 					  		<img style="border: 1px solid #000000;" alt="" src="<%=basePath %>file!fileDownload.action?id=<%=id %>&fileName=<%=fileName %>">
 						</div>
 						<br>
 						
-<!-- 						<div id="hiddenHit"　style="display:none;'"><br><span style="font-size:24px;color:red;">暂不支持浏览该格式文件！</span></div>
- -->						
+						<!-- 						
+						<div id="hiddenHit"　style="display:none;'"><br><span style="font-size:24px;color:red;">暂不支持浏览该格式文件！</span></div>
+						-->						
 						<div id="player" style="width:700px;height:300px;position:relative;display:none;">
 					        <object name="playerzmblbkjP" width="100%" height="100%" id="playerzmblbkjP" classid="clsid:D27CDB6E-AE6D-11cf-96B8-444553540000" style="position:absolute;top:0;left:0;">
 					            <param name="movie" value="jwplayer.flash.swf">
@@ -114,7 +117,10 @@ if( fileName.contains("."))
 					            <param name="AllowScriptAccess" value="always">
 					        </object>
 					    </div>
+					    
+					    
 				</center>
+				 	
 				</div>
 			</div>
 </div>

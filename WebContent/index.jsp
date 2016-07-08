@@ -9,8 +9,9 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 <meta http-equiv="pragma" content="no-cache" />
 <meta http-equiv="cache-control" content="no-cache" />
 <meta http-equiv="expires" content="0" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" /> 
 
-<title>云盘</title>
+<title>网盘</title>
 
 <link rel="stylesheet" href="css/bootstrap.min.css">
 <script type="text/javascript" src="js/jquery-1.11.3.min.js"></script>
@@ -36,6 +37,7 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 <script type="text/javascript">
 	$(function(){
 			var parentId = null ;//当前目录id
+			var shareFileIds ;//共享文件id
 			listFile();//显示文件列表	
 		
 			$("#selection").click(function(){
@@ -80,7 +82,12 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 			$("#rename").click(function(){
 				var ids = getSelectedIds();
 				if( ids == ""){
-					alert("请选择文件");
+					var html = "<span class='alert alert-danger alert-dismissible' role='alert' >";
+			  		html += "<strong>请选择一个文件!</strong> ";
+					html += "</span>";
+					$("#infoPanel").show();
+					$("#infoPanel").html(html);
+					$("#infoPanel").fadeOut(2000);
 					return ;
 				}
 				
@@ -92,7 +99,13 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 				var ids = getSelectedIds();
 				
 				if( ids == ""){
-					alert("请选择要删除的文件!");
+					//alert("请选择要删除的文件!");
+					var html = "<span class='alert alert-danger alert-dismissible' role='alert' >";
+				  		html += "<strong style='width:400px;'>请选择你要删除的文件!</strong> ";
+						html += "</span>";
+					$("#infoPanel").show();
+					$("#infoPanel").html(html);
+					$("#infoPanel").fadeOut(2000);
 				}else{
 					var data = "id=" + ids ;
 					$.ajax({  
@@ -209,7 +222,7 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 					html +=                     "&nbsp;&nbsp;<button class='btn btn-danger btn-xs'  name='cancel_create_btn'>取消</button>";
 					html +=  			        "</td>";
 					html +=	  			        "<td> - </td>";
-					html +=	  			        "<td>2015-10-2  12:00:11</td>";
+					html +=	  			        "<td> - </td>";
 					html +=	  		"</tr>"
 					$("#tableHead").append(html);
 			});
@@ -257,8 +270,28 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 								listFile(pId);
 							}
 						}  
-					});  
+				  });  
 			 }
+			//分享文件
+			$("#shareFilesButton").click(function(){
+				var ids = getSelectedIds();
+				shareFileIds = ids ;
+				
+				if( ids == ""){
+					var html = "<span class='alert alert-danger alert-dismissible' role='alert' >";
+				  		html += "<strong style='width:400px;'>请选择你要分享的文件(夹)!</strong> ";
+						html += "</span>";
+					$("#infoPanel").show();
+					$("#infoPanel").html(html);
+					$("#infoPanel").fadeOut(2000);
+				}else{
+					$("#shareDiv").show();
+					$("#shareResultDiv").hide();
+					$("#pwdDivPanel").hide();
+					
+					$("#fileShare").modal();
+				}
+			});
 			 
 			//查看所有文件
 			$(document).on("click", ".allFiles", function(){
@@ -289,17 +322,17 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 			function getIcon(ext){
 				var str = "";
 				if(ext == null || ext == "" ||  ext == "unknown"){
-					str = "unknown.ico";
+					str = "<span class='glyphicon glyphicon glyphicon-question-sign' aria-hidden='true'></span>";
 				}else if( ext == ".jpg" || ext == ".gif" || ext == ".png"){
-					str = "photos.png";
-				}else if(ext == ".doc" || ext == ".txt"){
-					str = "document.ico";
+					str = "<span class='glyphicon glyphicon glyphicon-picture' aria-hidden='true'></span>";
+				}else if(ext == ".doc" || ext == ".txt" || ext == ".pdf" || ext == ".docx"){
+					str = "<span class='glyphicon glyphicon glyphicon-file' aria-hidden='true'></span>";
 				}else if( ext == ".mp4"  || ext == ".webm" || ext == ".wav" || ext == ".flv" || ext == ".f4v"){
-					str = "videos.png";
+					str = "<span class='glyphicon glyphicon glyphicon-film' aria-hidden='true'></span>";
 				}else if( ext == ".mp3"){
-					str = "music.png";
+					str = "<span class='glyphicon glyphicon glyphicon-volume-up' aria-hidden='true'></span>";
 				}else if( ext == ".zip"){
-					str = "unknown.ico";
+					str = "<span class='glyphicon glyphicon glyphicon-question-sign' aria-hidden='true'></span>";
 				}
 				return str;
 			}
@@ -308,7 +341,12 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 			$("#fileSearchBtn").click(function(){
 				var name = $("#fileSearchName").val();
 				if(name == null || name == ""){
-					alert("请输入文件名!");
+					var html = "<span class='alert alert-danger alert-dismissible' role='alert' >";
+			  		html += "<strong>请输入文件名!</strong> ";
+					html += "</span>";
+					$("#infoPanel").show();
+					$("#infoPanel").html(html);
+					$("#infoPanel").fadeOut(2000);
 					return ;
 				}
 				$("#fileSearchName").val("");
@@ -332,31 +370,36 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 					  		html +=	       "<td  class='nameInfo'>";
 					  		html +=			"<input class=\"selection\" type=\"checkbox\">&nbsp;&nbsp;&nbsp;";
 					  		if( item.type == 1){//普通文件
-					  			html +=		    "<image src=\"images/" + getIcon(item.ext) + "\" style=\"width:20px;height:20px;\">&nbsp;&nbsp;&nbsp;";
+					  			html +=		    "" + getIcon(item.ext) + "&nbsp;&nbsp;&nbsp;";
 					  			html +=		    "<a href=\"javascript:void(0)\"  class=\"enter\"  type=\"file\"  fileId='" + item.id + "'>" + item.fileName + "</a>";
 					  			html +=         "</td>";
-						  		html +=         "<td style='text-align:center;'>" + item.size + "</td>";
+						  		html +=         "<td>" + item.size + "</td>";
 					  		}else if( item.type == 2){//文件夹
 					  			html +=		    "<image src=\"images/folder.ico\" style=\"width:20px;height:20px;\">&nbsp;&nbsp;&nbsp;";
 					  			html +=		    "<a href=\"javascript:void(0)\"  class=\"enter\"  type=\"folder\"  fileId='" + item.id + "'>" + item.fileName + "</a>";
 					  			html +=         "</td>";
-						  		html +=         "<td style='text-align:center;'> - </td>";
+						  		html +=         "<td style=''> - </td>";
 					  		}
 					  		html +=         "<td>" + item.updateTime +  "</td>";
 					  		html +=        "</tr>";
-					  		
-					  		$("#table").append(html);
+					  		$("#tableHead").append(html);
 						});
 					}  
 				});  
 			});
+			//
+			$(".list-group-item").click(function(){
+				if( $(this).attr("active") == "1")
+					return ;
+				$(".colum").html("");
+				listFileByType($(this).attr("type"));
+			});
 			
 			//列出文件列表
-			function listFile(parentId){
-				$("#table").append("<center  id='loading'>正在加载，请稍后...</center>");
+			function listFileByType(type){
 				var url = "<%=basePath %>file!listUserFile.action";
-				if( parentId != null){
-					url += "?parentId=" + parentId;
+				if( type != null){
+					url += "?listType=" + type;
 				}
 				
 				$.ajax({  
@@ -374,15 +417,15 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 					  		html +=	       "<td  class='nameInfo'>";
 					  		html +=			"<input class=\"selection\" type=\"checkbox\">&nbsp;&nbsp;&nbsp;";
 					  		if( item.type == 1){//普通文件
-					  			html +=		    "<image src=\"images/" + getIcon(item.ext) + "\" style=\"width:20px;height:20px;\">&nbsp;&nbsp;&nbsp;";
+					  			html +=		    "" + getIcon(item.ext) + "&nbsp;&nbsp;&nbsp;";
 					  			html +=		    "<a href=\"javascript:void(0)\"  class=\"enter\"  type=\"file\"  fileId='" + item.id + "'>" + item.fileName + "</a>";
 					  			html +=         "</td>";
-						  		html +=         "<td  style='text-align:center;'>" + item.size + "</td>";
+						  		html +=         "<td>" + item.size + "</td>";
 					  		}else if( item.type == 2){//文件夹
 					  			html +=		    "<image src=\"images/folder.ico\" style=\"width:20px;height:20px;\">&nbsp;&nbsp;&nbsp;";
 					  			html +=		    "<a href=\"javascript:void(0)\"  class=\"enter\"  type=\"folder\"  fileId='" + item.id + "'>" + item.fileName + "</a>";
 					  			html +=         "</td>";
-						  		html +=         "<td style='text-align:center;'> - </td>";
+						  		html +=         "<td style=''> - </td>";
 					  		}
 					  		html +=         "<td>" + item.updateTime +  "</td>";
 					  		html +=        "</tr>";
@@ -392,6 +435,80 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 					}  
 				});  
 			}
+			
+			//列出文件列表
+			function listFile(parentId){
+				var url = "<%=basePath %>file!listUserFile.action";
+				if( parentId != null){
+					url += "?parentId=" + parentId;
+				}
+				
+				$.ajax({  
+					type:'post',      
+					url:url,  
+					data:'',  
+					cache:false, 
+					/* contentType:'charset=UTF-8', */
+					dataType:'text',  
+					success:function(data){  
+						$("#loading").remove();
+						var array = eval(data);
+						$(array).each(function(index, item){
+							var html = "";
+							html +=       "<tr  class=\"colum\">";
+					  		html +=	       "<td  class='nameInfo'>";
+					  		html +=			"<input class=\"selection\" type=\"checkbox\">&nbsp;&nbsp;&nbsp;";
+					  		if( item.type == 1){//普通文件
+					  			html +=		    "" + getIcon(item.ext) + "&nbsp;&nbsp;&nbsp;";
+					  			html +=		    "<a href=\"javascript:void(0)\"  class=\"enter\"  type=\"file\"  fileId='" + item.id + "'>" + item.fileName + "</a>";
+					  			html +=         "</td>";
+						  		html +=         "<td>" + item.size + "</td>";
+					  		}else if( item.type == 2){//文件夹
+					  			html +=		    "<image src=\"images/folder.ico\" style=\"width:20px;height:20px;\">&nbsp;&nbsp;&nbsp;";
+					  			html +=		    "<a href=\"javascript:void(0)\"  class=\"enter\"  type=\"folder\"  fileId='" + item.id + "'>" + item.fileName + "</a>";
+					  			html +=         "</td>";
+						  		html +=         "<td style=''> - </td>";
+					  		}
+					  		html +=         "<td>" + item.updateTime +  "</td>";
+					  		html +=        "</tr>";
+					  		
+					  		$("#table").append(html);
+						});
+					}  
+				});  
+			}
+			//文件共享
+			$("#shareFilePublic,#shareFilePrivate").click(function(){
+				var type = $(this).attr("type");
+				var url = "<%=basePath %>share!shareFile.action";
+				
+				if( type == "public"){
+					url += "?type=0";
+				}else if( type == "private"){
+					url += "?type=1";
+				}
+				url += "&id=" + shareFileIds;
+				$.ajax({  
+					type:'post',      
+					url:url,  
+					data:'',  
+					cache:false,  
+					dataType:'text',  
+					success:function(data){  						
+						$("#shareUrl").val("<%=basePath%>" + data.split(",")[0]);
+						$("#viewPwd").val(data.split(",")[1]);
+						
+						$("#shareDiv").hide();
+						$("#shareResultDiv").show();
+						if( type == "private"){
+							$("#pwdDivPanel").show();
+						}else{
+							$("#pwdDivPanel").hide();
+						}
+					}  
+				});
+				
+			});
 	});
 </script>
 </head>
@@ -400,52 +517,159 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 			<!--导航  -->
 			<div class="bg-primary" style="width:100%;height:60px;argin-top:-2px;">
 					<form class="navbar-form navbar-left" role="search"  >
-						<span style='font-size:20px;'>网络云盘</span>
+						<span style='font-size:30px;'>网盘</span>
+						
 					</form>
 					<form class="navbar-form navbar-right" role="search"  style="margin-right:5px;">
 						  <div class="form-group">
 						    	<input type="text" class="form-control" id="fileSearchName" placeholder="Search">
 						  </div>
-						  <button type="button" class="btn btn-default navbar-btn"  id="fileSearchBtn">搜索</button>
+						  <button type="button" class="btn btn-default navbar-btn"  id="fileSearchBtn">
+						  <span class="glyphicon glyphicon glyphicon-search" aria-hidden="true"></span>   
+						     搜索
+						  </button>
+						  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+						  <!--退出登录  -->
+					      <div class="btn-group"  style="margin-right:30px;">
+								
+								<img alt="" src="head/head1.jpg" style="width:50px;height:50px;">
+								&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+								<span type="button" class="dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="cursor: pointer;">
+									${sessionScope.loginUser.name }&nbsp;<span class="caret"></span>
+								</span>
+								<ul class="dropdown-menu">
+									<li><a href="usercenter.jsp"  id="" target="_Blank">个人中心</a></li>
+									<li role="separator" class="divider"></li>
+									<li><a href="user!invalidate.action"  id="">退出登录</a></li>
+								</ul>
+								
+						  </div>
 					</form>
 			</div>
 			
-		     <!-- 面板 -->
-			<div class="panel panel-primary" style="height:90%;width:100%;overflow-x:hidden;">
+		    <!-- 左边面板 -->
+		    <div style="height:92%;width:15%;float:left;margin-top:1px;">
+		   		<div class="list-group">
+				  <a href="#" class="list-group-item active" type="1">
+				  	
+				  	<span class="glyphicon glyphicon glyphicon-home" aria-hidden="true"></span>
+				   	 全部文件
+				  </a>
+				  <a href="#" class="list-group-item" type="2">
+				  	<span class="glyphicon glyphicon glyphicon-picture" aria-hidden="true"></span>
+				  	图片
+				  </a>
+				  <a href="#" class="list-group-item" type="3">
+				  	<span class="glyphicon glyphicon glyphicon-file" aria-hidden="true"></span>
+				  	文档
+				  </a>
+				  <a href="#" class="list-group-item" type="4">
+				  	<span class="glyphicon glyphicon glyphicon-film" aria-hidden="true"></span>
+				  	视频
+				  </a>
+				  <a href="#" class="list-group-item" type="5">
+				  	<span class="glyphicon glyphicon glyphicon-volume-up" aria-hidden="true"></span>
+				  	音乐
+				  </a>
+				  <a href="sharefiles.jsp" class="list-group-item"  target="_Blank">
+				  	<span class="glyphicon glyphicon glyphicon-random" aria-hidden="true"></span>
+				  	我的分享
+				  </a>
+				  <!-- <a href="mysubscribe.jsp" class="list-group-item" type="6" target="_Blank">
+				  	<span class="glyphicon glyphicon-tasks" aria-hidden="true"></span>
+				  	我的订阅
+				  </a> -->
+				  <a href="file!listCount.action" class="list-group-item" target="_Blank">
+				  	<span class="glyphicon glyphicon-align-left" aria-hidden="true"></span>
+				  	文件统计
+				  </a>
+				  <a href="message.jsp" class="list-group-item" target="_Blank">
+				  	<span class="glyphicon glyphicon glyphicon-envelope" aria-hidden="true"></span>
+				  	<span class="badge">1</span>
+				  	站内信
+				  </a>
+				  <a href="friendscircle.jsp" class="list-group-item" target="_Blank">
+				  	<span class="glyphicon glyphicon-user" aria-hidden="true"></span>
+				  	朋友圈
+				  </a>
+				  <a href="note!list.action" class="list-group-item" target="_Blank">
+				  	<span class="glyphicon glyphicon-tasks" aria-hidden="true"></span>
+				  	记事本
+				  </a>
+				</div>
+		    </div>
+		    <!--文件列表  -->
+			<div class="panel panel-primary" style="height:92%;width:85%;float:right;margin-top:-5px;">
 			  	<div class="panel-footer">
-			  		<button class="btn btn-primary"	id="uploadBtn">上传文件</button>
-					<button class="btn btn-success"  id="createFolder">新建文件夹</button>
+			  		<button class="btn btn-primary"	id="uploadBtn"><span class="glyphicon glyphicon glyphicon-arrow-up" aria-hidden="true"></span>上传文件</button>
+					<button class="btn btn-success"  id="createFolder"><span class="glyphicon glyphicon glyphicon-plus" aria-hidden="true"></span>新建文件夹</button>
+					
+					<button class="btn btn-primary"	id="deleteFiles"><span class="glyphicon glyphicon glyphicon-trash" aria-hidden="true"></span>&nbsp;删除</button>
+						
+					<button class="btn btn-primary"	id="rename"><span class="glyphicon glyphicon glyphicon-credit-card" aria-hidden="true"></span>&nbsp;重命名</button>
+					
+					<button class="btn btn-primary"	id="shareFilesButton"><span class="glyphicon glyphicon glyphicon-random" aria-hidden="true"></span>&nbsp;共享文件</button>
+				
 					<div class="btn-group"  style="margin-right:30px;"  id="operationBtns">
 						<button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-						操作 <span class="caret"></span>
+						<span class="glyphicon glyphicon glyphicon-th-large" aria-hidden="true"></span>
+						其他操作 <span class="caret"></span>
 						</button>
 						<ul class="dropdown-menu">
-						<li><a href="javascript:void(0)"  id="deleteFiles">删除</a></li>
-						<li><a href="#"  id="rename">重命名</a></li>
+							<li><a href="javascript:void(0)"  id="">
+								<span class="glyphicon glyphicon glyphicon-trash" aria-hidden="true"></span> 
+								...</a>
+							</li>
+							<li role="separator" class="divider"></li>
+							<li><a href="#"  id="">
+								<span class="glyphicon glyphicon glyphicon-credit-card" aria-hidden="true"></span>
+								...</a>
+							</li>
+							<li role="separator" class="divider"></li>
+							<li>
+								<a href="#"  id="">
+								<span class="glyphicon glyphicon glyphicon-random" aria-hidden="true"></span>
+								
+								...</a>
+							</li>
 						</ul>
+						
+						
 					</div>
-					
+					<span  id="infoPanel"  >
+						
+					</span>
 			  	</div>
 			  	
 			  	<!-- 文件导航栏 -->
 			  	<ol class="breadcrumb"  style="background-color:#FFFFFF;" id="fileNav">
-				  <li><a href="#"  class="allFiles"  first='1'>全部文件</a></li>
+				  <li>&nbsp;<a href="#"  class="allFiles"  first='1'>全部文件</a></li>
 				</ol>
+				
+				<!--表格头部  -->
+				<div style="width:98%;margin-left:13px;margin-top:-20px;background-color:#F7F7F7;border-radius: 2px;line-height: 41px;height:41px;border: 1px solid #d2d2d2;">
+					<div  style="width:54%;float:left;border-left: 0;border-right: 1px solid #e5e5e5;">
+						&nbsp;
+	  					<input id="selection" type="checkbox">&nbsp;&nbsp;&nbsp;
+	  					<span id="fileName">文件名</span>
+	  				</div>
+	  				<div  style="width:13%;float:left;border-left: 1px solid #fff;border-right: 1px solid #e5e5e5;"><span id="size">大小</span></div>
+	  				<div  style="width:32%;float:left;border-left: 1px solid #fff;border-right: 0;"><span id="date">修改日期</span></div>
+				</div>
 			  	
 			  	<!--文件列表  -->
-			  	<table class="table table-hover table-condensed" style="width:98%;margin-left:16px;margin-top:-20px;"  id="table">
-			  		<thead  id="tableHead"  >
-			  			<tr  class="info table-bordered">
-			  				<td  style="width:50%;">
-			  					<input id="selection" type="checkbox">&nbsp;&nbsp;&nbsp;&nbsp;
-			  					<span id="fileName">文件名</span>
-			  				</td>
-			  				<td  style="width:20%;text-align:center;"><span id="size">大小</span></td>
-			  				<td  style="width:30%;"><span id="date">修改日期</span></td>
+			  	<div style="width:98%;height:76%;margin-left:16px;margin-top:-20px;overflow-x:hidden;position: relative;">
+				  	<table class="table table-hover table-condensed" id="table" style="width:100%;">
+				  		<thead id="tableHead">
+				  			
+				  		</thead>
+				  		<tr style="width:100%;">
+			  				<td style="width:54%;"></td>
+			  				<td style="width:13%;"></td>
+			  				<td style="width:32%;"></td>
 			  			</tr>
-			  		</thead>
-			  	
-			  	</table>
+				  	</table>
+			  	</div>
 			</div>
 	</div>
 	
@@ -499,6 +723,49 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 		</div> 
 	</div>
 	<!--文件重命名对话框结束  -->    
-	    
+	
+	
+	<!--文件分享对话框  -->			
+	<div class="modal fade" id="fileShare" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true"> 
+		<div class="modal-dialog"> 
+			<div class="modal-content"> 
+				<div class="modal-header"> 
+					<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button> 
+					<h4 class="modal-title" id="myModalLabel">
+						<span class="glyphicon glyphicon glyphicon-random" aria-hidden="true"></span>
+						分享文件(夹):
+					</h4> 
+				</div> 
+				<div class="modal-body">
+					<div class="list-group" id="shareDiv">
+						  <a href="#" class="list-group-item active" active="1" id="shareFilePublic" type="public">
+						  	<span class="glyphicon glyphicon glyphicon-random" aria-hidden="true"></span>
+						   	创建公开链接
+						  </a>
+						  <a href="#" class="list-group-item" active="1" id="shareFilePrivate" type="private">
+						  	<span class="glyphicon glyphicon glyphicon-lock" aria-hidden="true"></span>
+						  	创建私密链接
+						  </a>
+						  <br>
+						  <input type='checkbox' checked='checked'>&nbsp;&nbsp;同时分享到朋友圈
+					 </div>
+					 <div id="shareResultDiv" style="display:none;">
+					 	<div class="alert alert-success" role="alert"><strong>成功创共享链接!</strong></div>
+					 	<input type="text" id="shareUrl" class="form-control" style="width:500px;" value="">
+					 	
+					 	<div id="pwdDivPanel" style="display:none;">
+					 		提取密码:
+					 		<input id="viewPwd" type="text" class="form-control" style="width:300px;" value="">
+						</div>
+					 </div>
+				 </div> 
+				 
+				<div class="modal-footer"> 
+					
+				</div>
+			</div>
+		</div> 
+	</div>
+	<!--文件分享对话框结束  -->    
 	</body>
 </html>

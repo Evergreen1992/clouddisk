@@ -43,6 +43,12 @@ public class FileExt {
 		case "video/webm":
 			ext = ".webm";
 			break ;
+		case "application/pdf":
+			ext = ".pdf";
+			break;
+		case "application/vnd.openxmlformats-officedocument.wordprocessingml.document":
+			ext = ".docx";
+			break;
 		default :
 			ext = "unknown";
 			break ;

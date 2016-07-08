@@ -17,7 +17,14 @@ public class File {
 	private java.util.Date updateTime ;//更新时间
 	private String ext ;//文件后缀名(.txt  .pdf   .doc等等)
 	private String size ;//文件大小
+	private String timeDetailString ;//字符串格式时间
 	
+	public String getTimeDetailString() {
+		return timeDetailString;
+	}
+	public void setTimeDetailString(String timeDetailString) {
+		this.timeDetailString = timeDetailString;
+	}
 	public String getSize() {
 		return size;
 	}

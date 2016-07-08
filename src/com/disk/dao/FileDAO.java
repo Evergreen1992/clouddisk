@@ -1,13 +1,41 @@
 package com.disk.dao;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import com.disk.entity.File;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 
 public class FileDAO extends BaseConnection{
+	//文件类型统计
+	public Map<String, Integer> getCountByType(String uid){
+		Map<String, Integer> count = new HashMap<String, Integer>();
+		
+		try{
+			String sql = "select ext as type , count(ext) from t_file where uid = '" + uid + "' group by ext";
+			Connection conn = this.getConn();
+			ResultSet rs = null ;
+			PreparedStatement pstmt = conn.prepareStatement(sql);
+			rs = pstmt.executeQuery();
+			
+			while( rs.next() ){
+				if( rs.getString("type") == "unknow" || rs.getString("type").trim().equals("")){
+					count.put("others", rs.getInt("count(ext)"));
+				}else{
+					count.put(rs.getString("type"), rs.getInt("count(ext)"));
+				}
+			}
+			close(rs);
+			close(pstmt);
+			close(conn);
+		}catch(Exception e){
+			e.printStackTrace();
+		}
+		return count ;
+	}
 	
 	/**
 	 * 搜索文件
@@ -33,6 +61,8 @@ public class FileDAO extends BaseConnection{
 				file.setUpdateTime(new java.util.Date(rs.getDate("updatetime").getTime()));
 				file.setuId(rs.getString("uid"));
 				file.setParentId(rs.getString("parentid"));
+				file.setExt(rs.getString("ext"));
+				file.setSize(rs.getString("size"));
 				files.add(file);
 			}
 			close(rs);
@@ -174,16 +204,37 @@ public class FileDAO extends BaseConnection{
 	 * @param parentId uid
 	 * @return
 	 */
-	public List<File> getFileByParentId(String parentId, String uid){
+	public List<File> getFileByParentId(String parentId, String uid, String fileType){
 		List<File> files = new ArrayList<File>();
 		
 		try{
 			String sql = "select * from t_file where uid = ? " ;
-			if( parentId == null )
-				sql += "  and parentId is null or parentId = '' ";
-			else
-				sql += " and parentid = ?  ";
-			sql += " order by type desc ";
+			//查询条件
+			if( fileType.equals("1")){//查询所有文件
+				if( parentId == null ){
+					sql += "  and parentId is null  ";
+				}else{
+					sql += " and parentid = ?  ";
+				}
+				sql += " order by type desc ";
+			}else if(fileType.equals("2")){//图片
+				sql += " and ext in('.jpg','.png','.gif') ";
+				sql += " order by type desc ";
+			}else if(fileType.equals("3")){//文档
+				sql += " and ext in('.doc','.docx','.txt','.pdf') ";
+				sql += " order by type desc ";
+			}else if(fileType.equals("4")){//视频
+				sql += " and ext in('.rmvb','.mp4','.webm') ";
+				sql += " order by type desc ";
+			}else if(fileType.equals("5")){//音乐
+				sql += " and ext in('.mp3') ";
+				sql += " order by type desc ";
+			}else if(fileType.equals("6")){//我的分享
+				sql = "select tf.* from t_file tf, t_sharefile tsf where tf.id = tsf.fileid  and tf.uid = ? ";
+				sql += " order by tf.type desc ";
+			}
+			
+			
 			Connection conn = this.getConn();
 			ResultSet rs = null ;
 			PreparedStatement pstmt = conn.prepareStatement(sql);
@@ -198,12 +249,13 @@ public class FileDAO extends BaseConnection{
 				file.setId(rs.getString("id"));
 				file.setFileName(rs.getString("filename"));
 				file.setType(rs.getInt("type"));
-				file.setUpdateTime(new java.util.Date(rs.getTime("updatetime").getTime()));				
+				file.setUpdateTime(rs.getDate("updatetime"));
+				rs.getDate("updatetime");
+				file.setTimeDetailString(rs.getDate("updatetime") + " " + rs.getTime("updatetime"));
 				file.setuId(rs.getString("uid"));
 				file.setParentId(rs.getString("parentid"));
 				file.setExt(rs.getString("ext"));
 				file.setSize(rs.getString("size"));
-				System.out.println(rs.getTime("updatetime"));
 				files.add(file);
 			}
 			close(rs);
@@ -214,9 +266,5 @@ public class FileDAO extends BaseConnection{
 		}
 		
 		return files ;
-	}
-
-	public static void main(String[] args){
-		
 	}
 }

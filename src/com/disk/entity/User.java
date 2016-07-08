@@ -9,7 +9,14 @@ public class User {
 	private String id ;
 	private String name ;
 	private String passwd ;
+	private String mail ;
 	
+	public String getMail() {
+		return mail;
+	}
+	public void setMail(String mail) {
+		this.mail = mail;
+	}
 	public String getId() {
 		return id;
 	}
